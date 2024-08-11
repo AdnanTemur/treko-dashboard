@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import EmployeeList from "./EmployeeList";
 import BaseUrl from "../../../utils/config/baseurl";
+import { MarkerF } from "@react-google-maps/api";
 
 const containerStyle = {
   width: "100%",
@@ -46,7 +47,7 @@ const Location: React.FC = () => {
     if (selectedEmployee && map) {
       const { latitude, longitude } = selectedEmployee.coordinates;
       map.panTo(new google.maps.LatLng(latitude, longitude));
-      map.setZoom(15);
+      map.setZoom(30);
       setSelectedCoordinates({ latitude, longitude });
     }
   };
@@ -65,11 +66,8 @@ const Location: React.FC = () => {
               onLoad={onLoad}
               onUnmount={onUnmount}
             >
-              {/* Static marker for debugging */}
-              <Marker position={{ lat: 35.9137152, lng: 74.355935 }} />
-
               {employees.map((employee) => (
-                <Marker
+                <MarkerF
                   key={employee._id}
                   position={{
                     lat: employee.coordinates.latitude,
