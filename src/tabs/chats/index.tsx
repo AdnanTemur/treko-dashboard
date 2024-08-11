@@ -11,15 +11,24 @@ import {
 import BaseUrl from "../../../utils/config/baseurl";
 import { Caption, Font, Title } from "../../../theme/type";
 
+// Define interfaces for messages and employees
+interface Message {
+  _id: string;
+  text: string;
+  timestamp: string;
+  user: string;
+}
+
+interface Employee {
+  _id: string;
+  name: string;
+  role: string;
+  avatar: string;
+}
+
 // Component for rendering a received message
-const ReceivedMessage = ({ message }: any) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "flex-start",
-      mb: 2,
-    }}
-  >
+const ReceivedMessage: React.FC<{ message: Message }> = ({ message }) => (
+  <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
     <Box
       sx={{
         maxWidth: "60%",
@@ -40,18 +49,12 @@ const ReceivedMessage = ({ message }: any) => (
 );
 
 // Component for rendering a sent message
-const SentMessage = ({ message }) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "flex-end",
-      mb: 2,
-    }}
-  >
+const SentMessage: React.FC<{ message: Message }> = ({ message }) => (
+  <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
     <Box
       sx={{
         maxWidth: "60%",
-        bgcolor: "#FFFBE4", // Light yellow for sent messages
+        bgcolor: "#FFFBE4",
         borderRadius: 4,
         padding: "8px 16px",
         borderBottomRightRadius: 0,
@@ -68,20 +71,17 @@ const SentMessage = ({ message }) => (
 );
 
 const BossTraceChats: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
-  const [selectedPair, setSelectedPair] = useState<any>(null);
-  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [user, setUser] = useState<Employee | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const [selectedPair, setSelectedPair] = useState<Employee[] | null>(null);
+  const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [emptyStateMessage, setEmptyStateMessage] = useState("");
 
   useEffect(() => {
-    const fetchUser = () => {
-      const storedUser = localStorage.getItem("user");
-      setUser(storedUser ? JSON.parse(storedUser) : null);
-    };
-
     const fetchEmployees = async () => {
       try {
         const { data } = await BaseUrl.get("/api/v1/get-all-employees");
@@ -91,8 +91,6 @@ const BossTraceChats: React.FC = () => {
         setEmptyStateMessage("Error fetching employees.");
       }
     };
-
-    fetchUser();
     fetchEmployees();
   }, []);
 
@@ -105,7 +103,7 @@ const BossTraceChats: React.FC = () => {
 
       try {
         const { data, status } = await BaseUrl.get(
-          `/api/v1/trace-employees-chats`,
+          "/api/v1/trace-employees-chats",
           {
             params: {
               employeeId1: selectedPair[0]._id,
@@ -159,36 +157,32 @@ const BossTraceChats: React.FC = () => {
     fetchChatHistory();
   }, [selectedPair]);
 
-  const generatePairs = (employees: any[]) => {
-    const pairs = [];
-    for (let i = 0; i < employees.length - 1; i++) {
-      for (let j = i + 1; j < employees.length; j++) {
-        if (
-          employees[i]._id !== employees[j]._id &&
-          employees[i].role !== "boss" &&
-          employees[j].role !== "boss"
-        ) {
-          pairs.push([employees[i], employees[j]]);
-        }
-      }
-    }
-    return pairs;
+  const generatePairs = (selectedEmployee: Employee, employees: Employee[]) => {
+    return employees
+      .filter((emp) => emp._id !== selectedEmployee._id && emp.role !== "boss")
+      .map((emp) => [selectedEmployee, emp]);
   };
 
   const pairs = selectedEmployee
-    ? generatePairs([
+    ? generatePairs(
         selectedEmployee,
-        ...employees.filter((emp) => emp._id !== selectedEmployee._id),
-      ])
+        employees.filter((emp) => emp._id !== selectedEmployee._id)
+      )
     : [];
 
-  const renderChatItem = (item) => {
+  const renderChatItem = (item: Message) => {
     if (item.user === "employee1") {
       return <ReceivedMessage key={item._id} message={item} />;
     } else {
       return <SentMessage key={item._id} message={item} />;
     }
   };
+
+  const getConversationTitle = () => {
+    if (!selectedPair) return "Conversation";
+    return `${selectedPair[0].name} & ${selectedPair[1].name} Conversation`;
+  };
+
   return (
     <Box sx={{ display: "flex", height: "100vh", mt: 2, gap: 3 }}>
       <Box sx={{ width: "25%", p: 2, borderRadius: 2 }}>
@@ -201,7 +195,7 @@ const BossTraceChats: React.FC = () => {
               onClick={() => setSelectedEmployee(emp)}
               sx={{
                 bgcolor:
-                  emp._id === selectedEmployee?._id ? "#d3e3fc" : "#F8F8F8",
+                  emp._id === selectedEmployee?._id ? "#BEDBEB" : "#F8F8F8",
                 mb: 1,
                 borderRadius: 3,
               }}
@@ -227,7 +221,6 @@ const BossTraceChats: React.FC = () => {
       {pairs.length !== 0 && (
         <Box sx={{ width: "25%", p: 2, borderRadius: 2 }}>
           <Title sx={{ fontWeight: "bold", color: "transparent" }}>.</Title>
-
           {selectedEmployee ? (
             <List sx={{ mt: 3 }}>
               {pairs.map((pair, index) => (
@@ -236,16 +229,13 @@ const BossTraceChats: React.FC = () => {
                   button
                   onClick={() => setSelectedPair(pair)}
                   sx={{
-                    bgcolor: pair === selectedPair ? "#D3E3FC" : "#F8F8F8",
+                    bgcolor: pair === selectedPair ? "orange" : "#F8F8F8", // Orange for selected pair
                     mb: 1,
                     borderRadius: 3,
                   }}
                 >
                   <Avatar src={pair[1].avatar} sx={{ mr: 2 }} />
                   <CardContent sx={{ flex: 1 }}>
-                    {/* <Title
-                      sx={{ fontWeight: "bold" }}
-                    >{`${pair[0].name} & ${pair[1].name}`}</Title> */}
                     <Title
                       sx={{ fontWeight: "bold" }}
                     >{` ${pair[1].name}`}</Title>
@@ -264,7 +254,7 @@ const BossTraceChats: React.FC = () => {
       {pairs.length !== 0 && chatHistory.length !== 0 && (
         <Box sx={{ flex: 1, p: 3, overflowY: "auto", width: "50%" }}>
           <Title sx={{ fontWeight: "bold", mb: 3, textAlign: "center" }}>
-            Conversation
+            {getConversationTitle()}
           </Title>
 
           {loading ? (
