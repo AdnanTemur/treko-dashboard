@@ -184,8 +184,31 @@ const BossTraceChats: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", mt: 2, gap: 3 }}>
-      <Box sx={{ width: "25%", p: 2, borderRadius: 2 }}>
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        mt: 2,
+        gap: {
+          lg: 3,
+          xs: 1,
+        },
+        flexDirection: {
+          lg: "row",
+          xs: "column",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: {
+            lg: "25%",
+            xs: "100%",
+          },
+          p: 2,
+          borderRadius: 2,
+        }}
+      >
         <Title sx={{ fontWeight: "bold" }}>Employees Chat History</Title>
         <List sx={{ mt: 3 }}>
           {employees.map((emp) => (
@@ -219,7 +242,16 @@ const BossTraceChats: React.FC = () => {
         </List>
       </Box>
       {pairs.length !== 0 && (
-        <Box sx={{ width: "25%", p: 2, borderRadius: 2 }}>
+        <Box
+          sx={{
+            width: {
+              lg: "25%",
+              xs: "100%",
+            },
+            p: 2,
+            borderRadius: 2,
+          }}
+        >
           <Title sx={{ fontWeight: "bold", color: "transparent" }}>.</Title>
           {selectedEmployee ? (
             <List sx={{ mt: 3 }}>
@@ -252,7 +284,17 @@ const BossTraceChats: React.FC = () => {
         </Box>
       )}
       {pairs.length !== 0 && chatHistory.length !== 0 && (
-        <Box sx={{ flex: 1, p: 3, overflowY: "auto", width: "50%" }}>
+        <Box
+          sx={{
+            flex: 1,
+            p: 3,
+            overflowY: "auto",
+            width: {
+              lg: "50%",
+              xs: "100%",
+            },
+          }}
+        >
           <Title sx={{ fontWeight: "bold", mb: 3, textAlign: "center" }}>
             {getConversationTitle()}
           </Title>
