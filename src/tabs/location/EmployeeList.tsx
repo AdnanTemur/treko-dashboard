@@ -33,9 +33,8 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
 
   const handleSelectEmployee = (id: string) => {
     setSelectedEmployeeId(id);
-    onSelectEmployee(id); // Pass the selected employee's ID to the parent
+    onSelectEmployee(id);
   };
-  console.log(employees);
 
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
@@ -48,21 +47,15 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
             key={employee._id}
             sx={{
               bgcolor:
-                selectedEmployeeId === employee._id
-                  ? "primary.light"
-                  : "background.paper",
+                selectedEmployeeId === employee._id ? "#BEDBEB" : "#F8F8F8",
               color:
-                selectedEmployeeId === employee._id
-                  ? "primary.contrastText"
-                  : "text.primary",
+                selectedEmployeeId === employee._id ? "black" : "text.primary",
               "&:hover": {
                 bgcolor:
-                  selectedEmployeeId === employee._id
-                    ? "primary.main"
-                    : "grey.200",
+                  selectedEmployeeId === employee._id ? "#BEDBEB" : "grey.200",
               },
               mb: 1,
-              borderRadius: 1,
+              borderRadius: 3,
             }}
             onClick={() => handleSelectEmployee(employee._id)}
           >
@@ -70,8 +63,15 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
               <Avatar
                 src={employee.userDetail.avatar}
                 alt={employee.userDetail.name}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  margin: "10px",
+                  border: "1px solid #09648C",
+                }}
               />
             </ListItemAvatar>
+
             <ListItemText
               primary={employee.userDetail.name}
               secondary={
@@ -80,6 +80,13 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
                     component="span"
                     variant="body2"
                     color="text.secondary"
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "block",
+                      width: "200px",
+                    }}
                   >
                     {employee.userDetail.email}
                   </Typography>

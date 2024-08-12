@@ -3,7 +3,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const BASEURL = import.meta.env.VITE_BASEURL;
-console.log(BASEURL, "BASEURL");
 
 const BaseUrl = axios.create({
   baseURL: BASEURL,

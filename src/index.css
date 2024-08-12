@@ -36,3 +36,6 @@
 Button {
   text-transform: capitalize !important;
 }
+.gm-style img {
+  border-radius: 30px !important;
+}
