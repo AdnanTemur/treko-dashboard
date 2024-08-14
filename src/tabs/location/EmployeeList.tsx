@@ -38,8 +38,12 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
 
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
-      <Typography variant="h6" component="div" sx={{ mb: 2 }}>
-        {employees.length} Employees are working
+      <Typography
+        variant="h6"
+        component="div"
+        sx={{ mb: 2, textAlign: "center" }}
+      >
+        Locations
       </Typography>
       <List>
         {employees.map((employee) => (

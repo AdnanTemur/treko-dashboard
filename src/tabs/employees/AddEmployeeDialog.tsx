@@ -14,7 +14,7 @@ import {
 import React, { useState } from "react";
 import { PhotoCamera, Visibility, VisibilityOff } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import axios from "axios";
+import BaseUrl from "../../../utils/config/baseurl";
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -74,15 +74,11 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         formData.append("avatar", employee.avatar);
       }
 
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await BaseUrl.post("/api/v1/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.data.message === "User has been created successfully") {
         toast.success("Employee added successfully!");

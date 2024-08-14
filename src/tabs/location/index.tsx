@@ -42,7 +42,10 @@ const Location: React.FC = () => {
     // Fetch employees from the API
     BaseUrl.get("/api/v1/get-all-locations")
       .then((response) => {
-        setEmployees(response.data.locations);
+        const validEmployees = response.data.locations.filter(
+          (emp: Employee) => emp._id && emp.userDetail.avatar
+        );
+        setEmployees(validEmployees);
 
         // Check if currentUser is in the employees array
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
