@@ -9,9 +9,10 @@ import {
 } from "@mui/material";
 import BaseUrl from "../../../utils/config/baseurl";
 import { Caption, Font, Title } from "../../../theme/type";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import AOS from "aos";
 import "aos/dist/aos.css";
-// Define interfaces for messages and employees
+
 interface Message {
   _id: string;
   text: string;
@@ -26,38 +27,25 @@ interface Employee {
   avatar: string;
 }
 
-// Component for rendering a received message
-const ReceivedMessage: React.FC<{ message: Message }> = ({ message }) => (
-  <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
+const MessageBubble: React.FC<{ message: Message; isSent: boolean }> = ({
+  message,
+  isSent,
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: isSent ? "flex-start" : "flex-end",
+      mb: 2,
+    }}
+  >
     <Box
       sx={{
         maxWidth: "60%",
-        bgcolor: "#E1F5FE",
+        bgcolor: isSent ? "#FFFBE4" : "#E1F5FE",
         borderRadius: 4,
         padding: "8px 16px",
-        borderBottomLeftRadius: 0,
-      }}
-    >
-      <Caption sx={{ whiteSpace: "pre-wrap", fontSize: 13 }}>
-        {message.text}
-      </Caption>
-      <Font sx={{ fontSize: 10, mt: 1 }}>
-        {new Date(message.timestamp).toLocaleString()}
-      </Font>
-    </Box>
-  </Box>
-);
-
-// Component for rendering a sent message
-const SentMessage: React.FC<{ message: Message }> = ({ message }) => (
-  <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-    <Box
-      sx={{
-        maxWidth: "60%",
-        bgcolor: "#FFFBE4",
-        borderRadius: 4,
-        padding: "8px 16px",
-        borderBottomRightRadius: 0,
+        borderBottomRightRadius: isSent ? 0 : 4,
+        borderBottomLeftRadius: isSent ? 4 : 0,
       }}
     >
       <Caption sx={{ whiteSpace: "pre-wrap", fontSize: 13 }}>
@@ -81,17 +69,12 @@ const BossTraceChats: React.FC = () => {
   const [emptyStateMessage, setEmptyStateMessage] = useState("");
 
   useEffect(() => {
-    AOS.init({
-      delay: 200, // Delay before the animation starts
-      duration: 500, // Duration of the animation in milliseconds (2 seconds)
-      easing: "ease-in-out", // Easing function for smooth transitions
-    });
+    AOS.init({ delay: 200, duration: 500, easing: "ease-in-out" });
     const fetchEmployees = async () => {
       try {
         const { data } = await BaseUrl.get("/api/v1/get-all-employees");
         setEmployees(data?.employees || []);
       } catch (error) {
-        console.log("Error fetching employees:", error);
         setEmptyStateMessage("Error fetching employees.");
       }
     };
@@ -101,10 +84,8 @@ const BossTraceChats: React.FC = () => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       if (!selectedPair) return;
-
       setLoading(true);
       setEmptyStateMessage("");
-
       try {
         const { data, status } = await BaseUrl.get(
           "/api/v1/trace-employees-chats",
@@ -117,17 +98,14 @@ const BossTraceChats: React.FC = () => {
         );
 
         if (status === 200) {
-          const employee1Id = selectedPair[0]._id;
-          const employee2Id = selectedPair[1]._id;
-
           const employee1Received =
-            data.find((chat: any) => chat.userId === employee1Id)
+            data.find((chat: any) => chat.userId === selectedPair[0]._id)
               ?.messageReceived || [];
           const employee2Received =
-            data.find((chat: any) => chat.userId === employee2Id)
+            data.find((chat: any) => chat.userId === selectedPair[1]._id)
               ?.messageReceived || [];
 
-          setChatHistory([
+          const combinedHistory = [
             ...employee1Received.map((msg: any) => ({
               ...msg,
               user: "employee1",
@@ -136,22 +114,23 @@ const BossTraceChats: React.FC = () => {
               ...msg,
               user: "employee2",
             })),
-          ]);
+          ];
 
-          if (
-            employee1Received.length === 0 &&
-            employee2Received.length === 0
-          ) {
+          // Sort the messages by timestamp
+          const sortedHistory = combinedHistory.sort(
+            (a, b) =>
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+
+          setChatHistory(sortedHistory);
+
+          if (sortedHistory.length === 0) {
             setEmptyStateMessage("No chats found between these employees.");
           }
         } else {
           setEmptyStateMessage("No Conversation Found 💬");
         }
-      } catch (error: any) {
-        console.log(
-          "Error fetching chat history:",
-          error.response?.data || error.message
-        );
+      } catch {
         setEmptyStateMessage("No Chats Found");
       } finally {
         setLoading(false);
@@ -161,11 +140,10 @@ const BossTraceChats: React.FC = () => {
     fetchChatHistory();
   }, [selectedPair]);
 
-  const generatePairs = (selectedEmployee: Employee, employees: Employee[]) => {
-    return employees
+  const generatePairs = (selectedEmployee: Employee, employees: Employee[]) =>
+    employees
       .filter((emp) => emp._id !== selectedEmployee._id && emp.role !== "boss")
       .map((emp) => [selectedEmployee, emp]);
-  };
 
   const pairs = selectedEmployee
     ? generatePairs(
@@ -174,44 +152,17 @@ const BossTraceChats: React.FC = () => {
       )
     : [];
 
-  const renderChatItem = (item: Message) => {
-    if (item.user === "employee1") {
-      return <ReceivedMessage key={item._id} message={item} />;
-    } else {
-      return <SentMessage key={item._id} message={item} />;
-    }
-  };
-
-  const getConversationTitle = () => {
-    if (!selectedPair) return "Conversation";
-    return `${selectedPair[0].name} & ${selectedPair[1].name} Conversation`;
-  };
   return (
     <Box
       sx={{
         display: "flex",
         height: "100vh",
         mt: 2,
-        gap: {
-          lg: 3,
-          xs: 1,
-        },
-        flexDirection: {
-          lg: "row",
-          xs: "column",
-        },
+        gap: { lg: 3, xs: 1 },
+        flexDirection: { lg: "row", xs: "column" },
       }}
     >
-      <Box
-        sx={{
-          width: {
-            lg: "25%",
-            xs: "100%",
-          },
-          p: 2,
-          borderRadius: 2,
-        }}
-      >
+      <Box sx={{ width: { lg: "25%", xs: "100%" }, p: 2, borderRadius: 2 }}>
         <Title sx={{ fontWeight: "bold" }}>Employees Chat History</Title>
 
         <List data-aos="flip-up" sx={{ mt: 3 }}>
@@ -241,21 +192,19 @@ const BossTraceChats: React.FC = () => {
                 <Title sx={{ fontWeight: "bold" }}>{emp.name}</Title>
                 <Font sx={{ textTransform: "capitalize" }}>{emp.role}</Font>
               </CardContent>
+              {emp._id === selectedEmployee?._id ? (
+                <ArrowRightAltIcon
+                  sx={{ position: "absolute", right: "-45px" }}
+                  fontSize="large"
+                />
+              ) : null}
             </ListItem>
           ))}
         </List>
       </Box>
+
       {pairs.length !== 0 && (
-        <Box
-          sx={{
-            width: {
-              lg: "25%",
-              xs: "100%",
-            },
-            p: 2,
-            borderRadius: 2,
-          }}
-        >
+        <Box sx={{ width: { lg: "25%", xs: "100%" }, p: 2, borderRadius: 2 }}>
           <Title sx={{ fontWeight: "bold", color: "transparent" }}>.</Title>
           {selectedEmployee ? (
             <List sx={{ mt: 3 }}>
@@ -265,19 +214,17 @@ const BossTraceChats: React.FC = () => {
                   button
                   onClick={() => setSelectedPair(pair)}
                   sx={{
-                    bgcolor: pair === selectedPair ? "orange" : "#F8F8F8", // Orange for selected pair
+                    bgcolor: pair === selectedPair ? "orange" : "#F8F8F8",
                     mb: 1,
                     borderRadius: 3,
                   }}
                 >
                   <Avatar src={pair[1].avatar} sx={{ mr: 2 }} />
                   <CardContent sx={{ flex: 1 }}>
-                    <Title
-                      sx={{ fontWeight: "bold" }}
-                    >{` ${pair[1].name}`}</Title>
-                    <Font
-                      sx={{ textTransform: "capitalize" }}
-                    >{`${pair[0].role} & ${pair[1].role}`}</Font>
+                    <Title sx={{ fontWeight: "bold" }}>{pair[1].name}</Title>
+                    <Font sx={{ textTransform: "capitalize" }}>
+                      {`${pair[0].role} & ${pair[1].role}`}
+                    </Font>
                   </CardContent>
                 </ListItem>
               ))}
@@ -287,20 +234,27 @@ const BossTraceChats: React.FC = () => {
           )}
         </Box>
       )}
-      {pairs.length !== 0 && chatHistory.length !== 0 && (
+
+      {pairs.length !== 0 && (
         <Box
           sx={{
             flex: 1,
             p: 3,
             overflowY: "auto",
-            width: {
-              lg: "50%",
-              xs: "100%",
-            },
+            width: { lg: "50%", xs: "100%" },
           }}
         >
-          <Title sx={{ fontWeight: "bold", mb: 3, textAlign: "center" }}>
-            {getConversationTitle()}
+          <Title
+            sx={{
+              fontWeight: "bold",
+              mb: 3,
+              textAlign: "center",
+              textTransform: "capitalize",
+            }}
+          >
+            {selectedPair
+              ? `${selectedPair[0].name} & ${selectedPair[1].name} Conversation`
+              : "Conversation"}
           </Title>
 
           {loading ? (
@@ -312,36 +266,13 @@ const BossTraceChats: React.FC = () => {
               {emptyStateMessage}
             </Title>
           ) : (
-            <Box>{chatHistory.map((item) => renderChatItem(item))}</Box>
-          )}
-        </Box>
-      )}
-      {pairs.length !== 0 && chatHistory.length === 0 && (
-        <Box
-          sx={{
-            flex: 1,
-            p: 3,
-            overflowY: "auto",
-            width: {
-              lg: "50%",
-              xs: "100%",
-            },
-          }}
-        >
-          <Title sx={{ fontWeight: "bold", mb: 3, textAlign: "center" }}>
-            {getConversationTitle()}
-          </Title>
-
-          {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center">
-              <CircularProgress />
-            </Box>
-          ) : emptyStateMessage ? (
-            <Title sx={{ fontWeight: "bold", textAlign: "center", mt: 10 }}>
-              {emptyStateMessage}
-            </Title>
-          ) : (
-            <Box>{chatHistory.map((item) => renderChatItem(item))}</Box>
+            chatHistory.map((item) => (
+              <MessageBubble
+                key={item._id}
+                message={item}
+                isSent={item.user === "employee2"}
+              />
+            ))
           )}
         </Box>
       )}
