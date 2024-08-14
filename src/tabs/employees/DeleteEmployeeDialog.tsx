@@ -31,10 +31,16 @@ const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary" disabled={loading}>
+        <Button
+          variant="contained"
+          onClick={onClose}
+          color="primary"
+          disabled={loading}
+        >
           No
         </Button>
         <Button
+          variant="contained"
           onClick={onDelete}
           color="error"
           disabled={loading}

@@ -8,11 +8,12 @@ import {
   Avatar,
   Button,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import BaseUrl from "../../../utils/config/baseurl";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 
 interface EditEmployeeDialogProps {
   open: boolean;
@@ -94,8 +95,8 @@ const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
           alt={name}
           src={employee?.avatar}
           sx={{
-            width: 56,
-            height: 56,
+            width: 70,
+            height: 70,
             margin: "10px auto",
             border: "1px solid #09648C",
           }}
@@ -108,9 +109,11 @@ const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
           onChange={handleImageUpload}
         />
         <label htmlFor="avatar-upload">
-          <Button variant="contained" component="span">
-            Upload Avatar
-          </Button>
+          <div style={{ textAlign: "center" }}>
+            <IconButton component="span">
+              <CameraAltIcon fontSize="large" />
+            </IconButton>
+          </div>
         </label>
         <TextField
           autoFocus

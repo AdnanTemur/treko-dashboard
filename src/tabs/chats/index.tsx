@@ -3,14 +3,14 @@ import {
   Box,
   CircularProgress,
   Avatar,
-  Typography,
   List,
   ListItem,
   CardContent,
 } from "@mui/material";
 import BaseUrl from "../../../utils/config/baseurl";
 import { Caption, Font, Title } from "../../../theme/type";
-
+import AOS from "aos";
+import "aos/dist/aos.css";
 // Define interfaces for messages and employees
 interface Message {
   _id: string;
@@ -71,7 +71,6 @@ const SentMessage: React.FC<{ message: Message }> = ({ message }) => (
 );
 
 const BossTraceChats: React.FC = () => {
-  const [user, setUser] = useState<Employee | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
@@ -82,6 +81,11 @@ const BossTraceChats: React.FC = () => {
   const [emptyStateMessage, setEmptyStateMessage] = useState("");
 
   useEffect(() => {
+    AOS.init({
+      delay: 200, // Delay before the animation starts
+      duration: 500, // Duration of the animation in milliseconds (2 seconds)
+      easing: "ease-in-out", // Easing function for smooth transitions
+    });
     const fetchEmployees = async () => {
       try {
         const { data } = await BaseUrl.get("/api/v1/get-all-employees");
@@ -182,7 +186,6 @@ const BossTraceChats: React.FC = () => {
     if (!selectedPair) return "Conversation";
     return `${selectedPair[0].name} & ${selectedPair[1].name} Conversation`;
   };
-
   return (
     <Box
       sx={{
@@ -210,7 +213,8 @@ const BossTraceChats: React.FC = () => {
         }}
       >
         <Title sx={{ fontWeight: "bold" }}>Employees Chat History</Title>
-        <List sx={{ mt: 3 }}>
+
+        <List data-aos="flip-up" sx={{ mt: 3 }}>
           {employees.map((emp) => (
             <ListItem
               key={emp._id}
@@ -284,6 +288,35 @@ const BossTraceChats: React.FC = () => {
         </Box>
       )}
       {pairs.length !== 0 && chatHistory.length !== 0 && (
+        <Box
+          sx={{
+            flex: 1,
+            p: 3,
+            overflowY: "auto",
+            width: {
+              lg: "50%",
+              xs: "100%",
+            },
+          }}
+        >
+          <Title sx={{ fontWeight: "bold", mb: 3, textAlign: "center" }}>
+            {getConversationTitle()}
+          </Title>
+
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Box>
+          ) : emptyStateMessage ? (
+            <Title sx={{ fontWeight: "bold", textAlign: "center", mt: 10 }}>
+              {emptyStateMessage}
+            </Title>
+          ) : (
+            <Box>{chatHistory.map((item) => renderChatItem(item))}</Box>
+          )}
+        </Box>
+      )}
+      {pairs.length !== 0 && chatHistory.length === 0 && (
         <Box
           sx={{
             flex: 1,

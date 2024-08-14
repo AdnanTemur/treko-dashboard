@@ -9,7 +9,8 @@ import EmployeeCard from "./EmployeeCard";
 import EditEmployeeDialog from "./EditEmployeeDialog";
 import DeleteEmployeeDialog from "./DeleteEmployeeDialog";
 import AddEmployeeDialog from "./AddEmployeeDialog";
-
+import AOS from "aos";
+import "aos/dist/aos.css";
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -20,6 +21,11 @@ const Employees: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
 
   useEffect(() => {
+    AOS.init({
+      delay: 200, // Delay before the animation starts
+      duration: 500, // Duration of the animation in milliseconds (2 seconds)
+      easing: "ease-in-out", // Easing function for smooth transitions
+    });
     const fetchEmployees = async () => {
       try {
         const response = await BaseUrl.get<{ employees: any[] }>(
@@ -86,7 +92,7 @@ const Employees: React.FC = () => {
   if (loading) return <Loader />;
   return (
     <>
-      <div style={{ textAlign: "right" }}>
+      <div data-aos="fade-up" style={{ textAlign: "right" }}>
         <Button
           variant="contained"
           color="primary"
@@ -97,7 +103,7 @@ const Employees: React.FC = () => {
           Add Employee
         </Button>
       </div>
-      <Grid container spacing={2} sx={{ mt: 3 }}>
+      <Grid data-aos="fade-right" container spacing={2} sx={{ mt: 3 }}>
         {employees.map((employee, id) => (
           <Grid key={id} item xs={12} sm={6} md={12}>
             <EmployeeCard

@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Caption, Font, Heading } from "../../../theme/type";
 import { Paper } from "@mui/material";
 import { primary } from "../../../theme/color";
 import BaseUrl from "../../../utils/config/baseurl";
 import Loader from "../../components/atom/Loader";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const DashboardContent = () => {
   const [employeeCount, setEmployeeCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    AOS.init({
+      delay: 200, // Delay before the animation starts
+      duration: 500, // Duration of the animation in milliseconds (2 seconds)
+      easing: "ease-in-out", // Easing function for smooth transitions
+    });
+
     const fetchEmployees = async () => {
       try {
         const response = await BaseUrl.get("/api/v1/get-all-employees");
@@ -29,6 +37,7 @@ const DashboardContent = () => {
 
   return (
     <Paper
+      data-aos="fade-down"
       elevation={1}
       sx={{
         p: 3,
