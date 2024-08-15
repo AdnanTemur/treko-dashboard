@@ -24,6 +24,8 @@ const Setting: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+
     window.location.reload();
   };
 

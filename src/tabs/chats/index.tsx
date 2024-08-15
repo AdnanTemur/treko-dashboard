@@ -188,15 +188,13 @@ const BossTraceChats: React.FC = () => {
                   border: "1px solid #09648C",
                 }}
               />
+
               <CardContent sx={{ flex: 1 }}>
                 <Title sx={{ fontWeight: "bold" }}>{emp.name}</Title>
                 <Font sx={{ textTransform: "capitalize" }}>{emp.role}</Font>
               </CardContent>
               {emp._id === selectedEmployee?._id ? (
-                <ArrowRightAltIcon
-                  sx={{ position: "absolute", right: "-45px" }}
-                  fontSize="large"
-                />
+                <ArrowRightAltIcon fontSize="large" />
               ) : null}
             </ListItem>
           ))}
