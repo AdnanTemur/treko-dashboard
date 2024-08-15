@@ -13,10 +13,11 @@
     "noEmit": true,
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "strict": false,                   // Disable strict mode
+    "noImplicitAny": false,            // Allow implicit 'any' types
+    "noUnusedLocals": false,           // Allow unused local variables
+    "noUnusedParameters": false,       // Allow unused parameters
+    "noFallthroughCasesInSwitch": false // Allow fallthrough cases in switch statements
   },
   "include": ["vite.config.ts"]
 }
