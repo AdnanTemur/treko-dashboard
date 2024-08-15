@@ -20,6 +20,12 @@ import { primary } from "../../theme/color";
 import { Font, Heading, Title } from "../../theme/type";
 import Div from "../components/atom/Div";
 
+interface MenuItem {
+  label: string;
+  icon: React.ReactNode;
+  component: React.ReactNode;
+}
+
 const drawerWidth = 180;
 
 const menuItems = [
@@ -77,7 +83,7 @@ const DashboardPage = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleListItemClick = (item) => {
+  const handleListItemClick = (item: MenuItem) => {
     setSelectedItem(item.label);
     if (isMobile) {
       setMobileOpen(false); // Close the drawer on mobile when a menu item is clicked
