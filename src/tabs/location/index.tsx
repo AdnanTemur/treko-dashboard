@@ -74,7 +74,7 @@ const Location: React.FC = () => {
   }, []);
 
   const handleSelectEmployee = (id: string) => {
-    const selectedEmployee = employees.find((emp) => emp._id === id);
+    const selectedEmployee = employees.find((emp: Employee) => emp._id === id);
     if (selectedEmployee && map) {
       const { latitude, longitude } = selectedEmployee.coordinates;
       map.panTo(new google.maps.LatLng(latitude, longitude));
@@ -98,12 +98,19 @@ const Location: React.FC = () => {
           <div style={{ flex: 1 }}>
             <GoogleMap
               mapContainerStyle={containerStyle}
-              center={selectedCoordinates || { lat: 0, lng: 0 }}
+              center={
+                selectedCoordinates
+                  ? {
+                      lat: selectedCoordinates.latitude,
+                      lng: selectedCoordinates.longitude,
+                    }
+                  : { lat: 0, lng: 0 }
+              }
               zoom={10}
               onLoad={onLoad}
               onUnmount={onUnmount}
             >
-              {employees.map((employee) => (
+              {employees.map((employee: Employee) => (
                 <MarkerF
                   key={employee._id}
                   position={{
