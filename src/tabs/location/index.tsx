@@ -11,10 +11,7 @@ const containerStyle = {
 };
 
 // Define types for employee and coordinates
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
+type Coordinates = google.maps.LatLngLiteral;
 
 interface Employee {
   _id: string;
@@ -27,7 +24,7 @@ interface Employee {
 
 const Location: React.FC = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [employees, setEmployees] = useState<any | Employee[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedCoordinates, setSelectedCoordinates] =
     useState<Coordinates | null>(null);
 
@@ -55,9 +52,9 @@ const Location: React.FC = () => {
 
         if (matchedEmployee && map) {
           const { latitude, longitude } = matchedEmployee.coordinates;
-          map.panTo(new google.maps.LatLng(latitude, longitude));
+          map.panTo({ lat: latitude, lng: longitude });
           map.setZoom(15); // Adjust zoom level as needed
-          setSelectedCoordinates({ latitude, longitude });
+          setSelectedCoordinates({ lat: latitude, lng: longitude });
         }
       })
       .catch((error) => {
@@ -77,9 +74,9 @@ const Location: React.FC = () => {
     const selectedEmployee = employees.find((emp) => emp._id === id);
     if (selectedEmployee && map) {
       const { latitude, longitude } = selectedEmployee.coordinates;
-      map.panTo(new google.maps.LatLng(latitude, longitude));
+      map.panTo({ lat: latitude, lng: longitude });
       map.setZoom(30);
-      setSelectedCoordinates({ latitude, longitude });
+      setSelectedCoordinates({ lat: latitude, lng: longitude });
     }
   };
 
@@ -107,8 +104,8 @@ const Location: React.FC = () => {
                 <MarkerF
                   key={employee._id}
                   position={{
-                    lat: employee.coordinates.latitude,
-                    lng: employee.coordinates.longitude,
+                    lat: employee.coordinates.lat,
+                    lng: employee.coordinates.lng,
                   }}
                   icon={{
                     url: employee.userDetail.avatar,
