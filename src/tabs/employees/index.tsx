@@ -104,15 +104,16 @@ const Employees: React.FC = () => {
         </Button>
       </div>
       <Grid data-aos="fade-right" container spacing={2} sx={{ mt: 3 }}>
-        {employees.map((employee, id) => (
-          <Grid key={id} item xs={12} sm={6} md={12}>
-            <EmployeeCard
-              employee={employee}
-              onEdit={() => handleEdit(employee)}
-              onDelete={() => handleDelete(employee)}
-            />
-          </Grid>
-        ))}
+        {employees &&
+          employees.map((employee, id) => (
+            <Grid key={id} item xs={12} sm={6} md={12}>
+              <EmployeeCard
+                employee={employee}
+                onEdit={() => handleEdit(employee)}
+                onDelete={() => handleDelete(employee)}
+              />
+            </Grid>
+          ))}
       </Grid>
       <EditEmployeeDialog
         open={openEditDialog}
